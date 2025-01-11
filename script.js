@@ -1,3 +1,5 @@
+'use strict';
+
 const cardFront = document.querySelector('#card-front');
 const cardBack = document.querySelector('#card-back');
 const flipCard = document.querySelector('.flip-card');
@@ -157,7 +159,11 @@ let clickCard = null;
 examCards.addEventListener('click', (event) => {
     clickCard = event.target.closest('.card');
 
-    firstClick += 1;
+    if (clickCard.classList.contains('fade-out')) {
+        return
+    }
+
+    firstClick++;
 
     if (firstClick === 1) {
         clickCard.classList.add('correct');
@@ -170,20 +176,24 @@ examCards.addEventListener('click', (event) => {
 });
 
 function compareСards() {
-    if (clickCard.textContent === wordInfo.title || clickCard.textContent === wordInfo.translation) {
+    if (clickCard.textContent === wordInfo.title && clickCard !== selectedWord || clickCard.textContent === wordInfo.translation && clickCard !== selectedWord) {
         clickCard.classList.add('correct', 'fade-out');
         selectedWord.classList.add('fade-out');
 
         firstClick = 0;
 
         examProgress.value += (1 / arrCards.length) * 100;
-        correctPercent.innerHTML = examProgress.value + '%';
+        correctPercent.textContent = examProgress.value + '%';
 
         if (examProgress.value === 100) {
             clearInterval(timerId);
+
+            setTimeout(() => {
+                alert('Проверка знаний завершенна успешно!')
+            }, 550)
+
             showStatistics();
         }
-
     } else {
         clickCard.classList.add('wrong');
         firstClick = 0;
@@ -191,7 +201,6 @@ function compareСards() {
         arrCards.forEach((item) => {
             if (item.title === selectedWord.textContent || item.translation === selectedWord.textContent) {
                 item.attempts += 1;
-                return;
             }
         });
 
